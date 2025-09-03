@@ -1,0 +1,35 @@
+﻿@page "/login"
+@using ModuERP.Core.Interfaces
+@using MudBlazor
+@inject IAuthService AuthService
+@inject NavigationManager Nav
+
+<MudPaper Class="pa-6 ma-auto" MaxWidth="400px">
+    <MudText Typo="Typo.h5">Login</MudText>
+    <MudTextField @bind-Value="username" Label="Username" />
+    <MudTextField @bind-Value="password" Label="Password" InputType="InputType.Password" />
+    <MudButton OnClick="LoginUser" Color="Color.Primary" Variant="Variant.Filled" Class="mt-4">Login</MudButton>
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <MudText Color="Color.Error">@error</MudText>
+    }
+</MudPaper>
+
+@code {
+    private string username = string.Empty;
+    private string password = string.Empty;
+    private string? error;
+
+    private async Task LoginUser()
+    {
+        var result = await AuthService.LoginAsync(username, password);
+        if (!result)
+        {
+            error = "Invalid username or password.";
+        }
+        else
+        {
+            // redirect handled by MainLayout via HandleAuthChange
+        }
+    }
+}

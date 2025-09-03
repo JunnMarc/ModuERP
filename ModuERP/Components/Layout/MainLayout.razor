@@ -1,0 +1,64 @@
+﻿@namespace ModuERP.Components
+@inherits LayoutComponentBase
+
+@using MudBlazor
+@using ModuERP.Core.Interfaces
+@using ModuERP.Core.Loader
+
+@inject IAuthService AuthService
+@inject NavigationManager Nav
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1" Color="Color.Primary">
+        <MudText Typo="Typo.h6" Class="text-white">ModuERP</MudText>
+    </MudAppBar>
+    <MudDrawer Open="true" Elevation="1" Variant="DrawerVariant.Mini">
+        <MudNavMenu>
+            <MudNavLink Href="/dashboard" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+            <MudNavLink Href="/settings" Icon="@Icons.Material.Filled.Settings">Settings</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.Large" Class="pa-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    protected override void OnInitialized()
+    {
+        AuthService.OnAuthStateChanged += HandleAuthChange;
+        HandleAuthChange();
+    }
+
+    private void HandleAuthChange()
+    {
+        var uri = new Uri(Nav.Uri);
+        var path = uri.AbsolutePath.ToLowerInvariant();
+
+        bool isLoginPage = path == "/login";
+        bool isDashboard = path == "/dashboard";
+
+        if (!AuthService.IsAuthenticated && !isLoginPage)
+        {
+            Nav.NavigateTo("/login");
+        }
+        else if (AuthService.IsAuthenticated && (isLoginPage || path == "/"))
+        {
+            if (!isDashboard)
+                Nav.NavigateTo("/dashboard");
+        }
+    }
+
+    private void Logout()
+    {
+        AuthService.Logout();
+        Nav.NavigateTo("/login");
+    }
+}
