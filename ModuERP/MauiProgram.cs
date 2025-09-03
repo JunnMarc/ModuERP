@@ -41,6 +41,12 @@ public static class MauiProgram
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddCoreServices();
 
+        // ✅ Register dynamic modules before building the app
+        var loggerFactory = LoggerFactory.Create(config => config.AddDebug());
+        var logger = loggerFactory.CreateLogger("ModuleLoader");
+
+        ModuleLoader.RegisterAllModules(builder.Services, logger);
+
         var app = builder.Build();
 
         // ✅ Ensure DB exists & apply migrations
@@ -49,8 +55,6 @@ public static class MauiProgram
             var db = scope.ServiceProvider.GetRequiredService<ModuERPDbContext>();
             db.Database.Migrate(); // applies migrations automatically
         }
-
-
 
         return app;
     }

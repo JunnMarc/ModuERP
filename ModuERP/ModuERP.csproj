@@ -76,6 +76,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\ModuERP.Core\ModuERP.Core.csproj" />
 		<ProjectReference Include="..\ModuERP.Data\ModuERP.Data.csproj" />
+		<ProjectReference Include="..\ModuERP.Inventory\ModuERP.Inventory.csproj" />
 	</ItemGroup>
 
 </Project>
