@@ -6,7 +6,7 @@ namespace ModuERP.Core.Interfaces
     public interface IAuthService
     {
         Task<bool> LoginAsync(string username, string password);
-        Task<bool> RegisterAsync(string username, string password); // <-- required
+        Task<bool> RegisterAsync(string username, string password);
         void Logout();
         event Action OnAuthStateChanged;
         bool IsAuthenticated { get; }

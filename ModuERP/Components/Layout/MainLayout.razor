@@ -8,10 +8,12 @@
 @inject IAuthService AuthService
 @inject NavigationManager Nav
 
-<MudThemeProvider />
+<MudThemeProvider Theme="_themeManager.Theme" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
+<MudThemeManagerButton OnClick="@((e) => OpenThemeManager(true))" />
+<MudThemeManager Open="_themeManagerOpen" OpenChanged="OpenThemeManager" Theme="_themeManager" ThemeChanged="UpdateTheme" />
 
 <MudLayout Class="h-100 bg-light">
     @if (AuthService.IsAuthenticated)
@@ -32,6 +34,9 @@
                 <div class="flex-grow-1 overflow-auto py-2">
                     <MudNavMenu Dense="true" Class="px-2">
                         <!-- Static links -->
+                        <div class="px-3 py-2 text-muted">
+                            <MudText Typo="Typo.overline">Main</MudText>
+                        </div>
                         <MudNavLink Href="/dashboard"
                                     Icon="@Icons.Material.Filled.Dashboard"
                                     Match="NavLinkMatch.All"
@@ -69,27 +74,56 @@
 
                 <!-- User Profile -->
                 <div class="border-top p-3">
-                    <MudMenu OffsetY="true" AnchorOrigin="Origin.TopCenter" TransformOrigin="Origin.BottomCenter">
-                        <ActivatorContent>
-                            <MudButton Variant="Variant.Text" Class="w-100 justify-start px-2 py-1 user-menu-btn">
-                                <MudAvatar Size="Size.Small" Class="me-2" Color="Color.Primary">
-                                    <MudIcon Icon="@Icons.Material.Filled.Person" />
-                                </MudAvatar>
-                                <div class="d-flex flex-column text-start">
-                                    <MudText Typo="Typo.body2" Class="fw-medium">@AuthService.CurrentUser</MudText>
+                    <MudMenu OffsetY="true"
+                         FullWidth="true"
+                         AnchorOrigin="Origin.TopCenter"
+                         TransformOrigin="Origin.BottomCenter"
+                         Style="min-width:200px; max-width:200px;">
+
+                    <ActivatorContent>
+                        <MudButton Variant="Variant.Text"
+                                   FullWidth="true"
+                                   Style="text-transform:none; border-radius:8px; padding:8px 12px;"
+                                   Class="d-flex align-center justify-start user-menu-btn">
+                            <MudAvatar Size="Size.Medium" Class="me-2" Color="Color.Primary">
+                                <MudIcon Icon="@Icons.Material.Filled.Person" Color="Color.Inherit" />
+                            </MudAvatar>
+                            <div class="d-flex flex-column text-start">
+                                <MudText Typo="Typo.body2" Class="fw-medium">@AuthService.CurrentUser</MudText>
                                     <MudText Typo="Typo.caption" Class="text-muted">Administrator</MudText>
-                                </div>
-                            </MudButton>
-                        </ActivatorContent>
-                        <ChildContent>
-                            <MudMenuItem OnClick="@GoToSettings" Class="menu-item-custom">
-                                <MudIcon Icon="@Icons.Material.Filled.Settings" Class="me-2" /> Settings
-                            </MudMenuItem>
-                            <MudMenuItem OnClick="Logout" Class="menu-item-custom">
-                                <MudIcon Icon="@Icons.Material.Filled.Logout" Class="me-2" /> Logout
-                            </MudMenuItem>
-                        </ChildContent>
-                    </MudMenu>
+                            </div>
+                        </MudButton>
+                    </ActivatorContent>
+
+                    <ChildContent>
+                        <!-- First level item -->
+                        <MudMenuItem OnClick="@GoToSettings">
+                            <MudIcon Icon="@Icons.Material.Filled.Settings" Class="me-2" /> Settings
+                        </MudMenuItem>
+
+                        <!-- Nested menu -->
+                        <MudNestedMenu>
+                            <ActivatorContent>
+                                <MudMenuItem>
+                                    <MudIcon Icon="@Icons.Material.Filled.ManageAccounts" Class="me-2" /> Account
+                                </MudMenuItem>
+                            </ActivatorContent>
+                            <ChildContent>
+                                    <MudMenuItem OnClick="@(() => GoToSettings())">
+                                    <MudIcon Icon="@Icons.Material.Filled.Person" Class="me-2" /> Profile
+                                </MudMenuItem>
+                                    <MudMenuItem OnClick="@(() => GoToSettings())">
+                                    <MudIcon Icon="@Icons.Material.Filled.Tune" Class="me-2" /> Preferences
+                                </MudMenuItem>
+                            </ChildContent>
+                        </MudNestedMenu>
+
+                        <!-- Logout -->
+                        <MudMenuItem OnClick="Logout">
+                            <MudIcon Icon="@Icons.Material.Filled.Logout" Class="me-2" /> Logout
+                        </MudMenuItem>
+                    </ChildContent>
+                </MudMenu>
                 </div>
             </div>
         </MudDrawer>
@@ -98,7 +132,7 @@
     <!-- Main Content Area -->
     <MudMainContent Class="main-content">
         <!-- Top Bar -->
-        <MudAppBar Elevation="1" Color="Color.Default" Class="app-bar-custom">
+        <MudAppBar Elevation="_themeManager.AppBarElevation">
             <div class="d-flex align-items-center w-100">
                 @if (AuthService.IsAuthenticated)
                 {
@@ -130,7 +164,7 @@
         </MudAppBar>
 
         <!-- Page Content -->
-        <div class="page-content p-3">
+        <div class="page-content m-0 p-3">
             @Body
         </div>
     </MudMainContent>
@@ -228,6 +262,20 @@
     private string _currentPageTitle = "Dashboard";
     private string _searchQuery = "";
 
+    private ThemeManagerTheme _themeManager = new ThemeManagerTheme();
+    public bool _themeManagerOpen = false;
+
+    void OpenThemeManager(bool value)
+    {
+        _themeManagerOpen = value;
+    }
+
+    void UpdateTheme(ThemeManagerTheme value)
+    {
+        _themeManager = value;
+        StateHasChanged();
+    }
+
     protected override void OnInitialized()
     {
         AuthService.OnAuthStateChanged += HandleAuthChange;
@@ -235,6 +283,8 @@
 
         // Update page title based on current route
         UpdatePageTitle();
+
+        StateHasChanged();
     }
 
     protected override void OnParametersSet()
@@ -264,6 +314,7 @@
 
         bool isLoginPage = path == "/login";
         bool isDashboard = path == "/dashboard";
+
 
         if (!AuthService.IsAuthenticated && !isLoginPage)
         {

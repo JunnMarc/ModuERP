@@ -1,7 +1,7 @@
 ﻿using MudBlazor;
 using Microsoft.Extensions.DependencyInjection;
 using ModuERP.Core.Interfaces;
-using System.Runtime.CompilerServices;
+using ModuERP.Inventory.Services;
 
 public class InventorySubsystem : ISubsystem
 {
@@ -12,6 +12,6 @@ public class InventorySubsystem : ISubsystem
 
     public void RegisterServices(IServiceCollection services)
     {
-        //services.AddSingleton<IInventoryService, InventoryService>();
+        services.AddScoped<IInventoryService, InventoryService>();
     }
 }

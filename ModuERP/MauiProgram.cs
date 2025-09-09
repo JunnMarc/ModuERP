@@ -22,6 +22,9 @@ public static class MauiProgram
 
         builder.Services.AddMauiBlazorWebView();
         builder.Services.AddMudServices();
+        builder.Services.AddMudBlazorDialog();
+        builder.Services.AddMudBlazorSnackbar();
+        builder.Services.AddMudBlazorResizeListener();
 
 #if DEBUG
         builder.Services.AddBlazorWebViewDeveloperTools();
@@ -32,7 +35,7 @@ public static class MauiProgram
         builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-        // ✅ Use SQL Server (SSMS)
+        //Initializing SQL Server
         builder.Services.AddDbContext<ModuERPDbContext>(options =>
             options.UseSqlServer(connectionString));
 
